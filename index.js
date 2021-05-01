@@ -1,5 +1,6 @@
 (function () {
     let itemsList = [];
+    const MAX_ITEMS = 32;
 
     $(document).ready(function () {
         renderCached();
@@ -17,6 +18,9 @@
     }
 
     function addClickHandler() {
+        if (itemsList.length === MAX_ITEMS) {
+            return alert("You have reached maximum amount of items. Please remove some before adding new ones.")
+        }
         let inputVal = $('#toDoInput').val();
         if (!inputVal.length) {
             return alert("The entity is empty, please enter some data!")
