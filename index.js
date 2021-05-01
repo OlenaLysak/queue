@@ -1,44 +1,56 @@
-$(document).ready(function () {
-    $("#addBtn").click(addClickHandler);
-    $("#removeBtn").click(removeClickHandler);
+(function () {
+    let itemsList = [];
 
-});
+    $(document).ready(function () {
+        renderCached();
+        $("#addBtn").click(addClickHandler);
+        $("#removeBtn").click(removeClickHandler);
 
-const itemsList = [];
+    });
 
-function addClickHandler() {
-    let inputVal = $('#toDoInput').val();
-    addListItem(inputVal);
-    $('#toDoInput').val('')
-}
-
-function removeClickHandler() {
-    if (itemsList.length) {
-        removeListItem();
+    async function renderCached() {
+        const listCache = await sessionStorage.getItem("list");
+        if(listCache){
+            itemsList = JSON.parse(listCache);
+            renderList(itemsList);
+        }
     }
-}
 
-function addListItem(content) {
-    const itemNode = $("<div>").addClass('item');
-    const itemText = content || $('#toDoInput').val();
-    if (!itemText.length) {
-        return alert("The entity is empty, please enter some data!")
+    function addClickHandler() {
+        let inputVal = $('#toDoInput').val();
+        if (!inputVal.length) {
+            return alert("The entity is empty, please enter some data!")
+        }
+        itemsList.push(inputVal);
+        renderList(itemsList);
+        $('#toDoInput').val('')
+        cacheData();
     }
-    const itemValue = $('<div>')
-        .text(itemText)
-        .addClass('task');
 
-    itemNode
-        .append(itemValue)
-        ;
+    function removeClickHandler() {
+        itemsList.shift();
+        renderList(itemsList);
+        cacheData();
+    }
 
-    $('#list').append(itemNode);
+    function renderList(itemsListArray) {
+        $('#list').empty();
 
-    itemsList.push(itemNode);
-    return itemNode
-}
+        itemsListArray.forEach(item => {
+            const itemNode = $("<div>").addClass('item');
+            const itemText = item;
+            const itemValue = $('<div>')
+                .text(itemText)
+                .addClass('task');
 
-function removeListItem() {
-    const itemToRemove = itemsList.shift();
-    itemToRemove.remove();
-}
+            itemNode
+                .append(itemValue);
+
+            $('#list').append(itemNode);
+        })
+    }
+
+    function cacheData() {
+        sessionStorage.setItem("list", JSON.stringify(itemsList));
+    }
+})();
